@@ -1,5 +1,6 @@
 import bcrypt
-from db import create_user_db
+from db import create_user_db,get_user_by_username
+from utils.jwt_handler import generate_token
 
 def register_user_service(username,password):
     if not isinstance(username, str) or not username.strip():
@@ -19,3 +20,19 @@ def register_user_service(username,password):
         return {"error": "Username already exists"}
 
     return result
+
+
+def user_login_service(username,password):
+    
+    user = get_user_by_username(username)
+    if not  user:
+        return {"error":"user not found"}
+    
+    
+    if not bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
+        return {"error":"incorrect password"}
+    
+    return {
+        "id": user["id"],
+        "username": user["username"]
+    }

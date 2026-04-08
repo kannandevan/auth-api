@@ -1,6 +1,6 @@
 
 from flask import Blueprint, request, jsonify
-from services.auth_service import register_user_service
+from services.auth_service import register_user_service,user_login_service
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/test")
@@ -26,4 +26,25 @@ def regsiter():
     return jsonify({
         "message":"User registerd",
         "data":result
+    }),201
+    
+    
+@auth_bp.route("/login",methods=["POST"])
+def login():
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({"error":"no data provided"}),400
+
+    username = data.get("username")
+    password = data.get("password")
+    
+    user = user_login_service(username,password)
+    
+    if "error" in user:
+        return jsonify(user),400
+    
+    return jsonify({
+        "message":"login success",
+        "data":user
     }),201

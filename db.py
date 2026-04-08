@@ -44,4 +44,28 @@ def create_user_db(username, password):
     except Exception as e:
         print("DB ERROR:", e)
         return None
+    
+    
+def get_user_by_username(username):
+    try:
+        with sqlite3.connect(DB_NAME, timeout=5) as conn:
+            cursor = conn.cursor()
+
+
+            cursor.execute("""
+            SELECT * FROM users WHERE username=?
+            """, (username,))
+            row = cursor.fetchone()
+            return {
+                "id":row[0],
+                "username":row[1],
+                "password":row[2]
+            }
+
+    except sqlite3.IntegrityError:
+        return None
+
+    except Exception as e:
+        print("DB ERROR:", e)
+        return None
 

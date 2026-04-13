@@ -1,6 +1,8 @@
 
 from flask import Blueprint, request, jsonify
 from services.auth_service import register_user_service,user_login_service
+from utils.jwt_handler import verify_token
+
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/test")
@@ -48,3 +50,18 @@ def login():
         "message":"login success",
         "data":user
     }),201
+    
+    
+@auth_bp.route("/profile",methods = ["POST"])
+def profile():
+    auth_header = request.headers.get("Authorization")
+    
+    if not auth_header:
+        return jsonify({"error":"Token Missing"}),401
+    token = auth_header.split(" ")[1]
+    
+    decoded =verify_token(token)
+    
+    if "error" in decoded:
+        return jsonify(decoded),401
+    return jsonify({"messgae":"success","user":decoded})

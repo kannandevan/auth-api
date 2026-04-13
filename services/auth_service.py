@@ -32,7 +32,10 @@ def user_login_service(username,password):
     if not bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
         return {"error":"incorrect password"}
     
+    token = generate_token(user["id"])
+
     return {
         "id": user["id"],
-        "username": user["username"]
+        "username": user["username"],
+        "token": token
     }

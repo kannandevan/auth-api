@@ -15,5 +15,13 @@ def generate_token(user_id):
     return token
 
 
-# def validate_token(token):
+def verify_token(token):
+    try:
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+        return decoded
+    except jwt.ExpiredSignatureError:
+        return {"error": "Token expired"}
+    except jwt.InvalidTokenError:
+        return {"error": "Invalid token"}
+    
     

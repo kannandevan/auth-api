@@ -4,9 +4,10 @@ import datetime
 SECRET_KEY = "your_secret_key"
 
 
-def generate_token(user_id):
+def generate_token(user_id,role):
     payload = {
         "user_id": user_id,
+        "role":role,
         "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2)
     }
 

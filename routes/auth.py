@@ -1,6 +1,6 @@
 
 from flask import Blueprint, request, jsonify
-from services.auth_service import register_user_service,user_login_service
+from services.auth_service import register_user_service,user_login_service,get_profile
 from utils.jwt_handler import verify_token
 from utils.decorators import token_required
 
@@ -53,7 +53,17 @@ def login():
     }),201
     
     
-@auth_bp.route("/profile",methods=["POST"])
+@auth_bp.route("/profile", methods=["GET"])
 @token_required
 def profile(user):
-    return jsonify({"messgae":"Access Granted","user":user})
+    user_id = user["user_id"]
+
+    result = get_profile(user_id)
+
+    if "error" in result:
+        return jsonify(result), 404
+
+    return jsonify({
+        "message": "Access Granted",
+        "data": result
+    }), 200

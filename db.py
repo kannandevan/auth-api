@@ -16,14 +16,15 @@ def init_db():
     CREATE TABLE IF NOT EXISTS users (
         id TEXT PRIMARY KEY,
         username TEXT UNIQUE,
-        password TEXT
+        password TEXT,
+        role TEXT DEFAULT 'user'
     )
     """)
 
     conn.commit()
     conn.close()
     
-    
+init_db()    
 def create_user_db(username, password):
     try:
         with sqlite3.connect(DB_NAME, timeout=5) as conn:
@@ -32,8 +33,8 @@ def create_user_db(username, password):
             user_id = str(uuid.uuid4())
 
             cursor.execute("""
-            INSERT INTO users (id, username, password)
-            VALUES (?, ?, ?)
+            INSERT INTO users (id, username, password, role)
+            VALUES (?, ?, ?, ?)
             """, (user_id, username, password))
 
             return {"id": user_id, "username": username}
@@ -56,6 +57,8 @@ def get_user_by_username(username):
             SELECT * FROM users WHERE username=?
             """, (username,))
             row = cursor.fetchone()
+            if not row:
+                return None
             return {
                 "id":row[0],
                 "username":row[1],
@@ -69,3 +72,25 @@ def get_user_by_username(username):
         print("DB ERROR:", e)
         return None
 
+def get_user_by_id(user_id):
+    try:
+        with sqlite3.connect(DB_NAME,timeout=5) as conn:
+            cursor = conn.cursor()
+            
+            cursor.execute("""
+            SELECT * FROM users WHERE id =?
+            """,(user_id,))
+            
+            row = cursor.fetchone()
+            if not row:
+                return None
+            return {
+                "id": row[0],
+                "username": row[1],
+                "role": row[3]
+            }
+
+
+    except Exception as e:
+        print("DB ERROR:", e)
+        return None

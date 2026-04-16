@@ -1,5 +1,5 @@
 import bcrypt
-from db import create_user_db,get_user_by_username
+from db import create_user_db,get_user_by_username,get_user_by_id
 from utils.jwt_handler import generate_token
 
 def register_user_service(username,password):
@@ -39,3 +39,15 @@ def user_login_service(username,password):
         "username": user["username"],
         "token": token
     }
+    
+def get_profile(user_id):
+    
+    user = get_user_by_id(user_id)
+    if not  user:
+        return {"error":"user not found"}
+    
+    return {
+        "id": user["id"],
+        "username": user["username"],
+    }
+    

@@ -26,3 +26,10 @@ def token_required(f):
         return f(decoded, *args, **kwargs)
 
     return wrapper
+
+
+def admin_required(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        
+        return wrapper

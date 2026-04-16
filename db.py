@@ -24,8 +24,7 @@ def init_db():
     conn.commit()
     conn.close()
     
-init_db()    
-def create_user_db(username, password):
+def create_user_db(username, password,role):
     try:
         with sqlite3.connect(DB_NAME, timeout=5) as conn:
             cursor = conn.cursor()
@@ -35,9 +34,9 @@ def create_user_db(username, password):
             cursor.execute("""
             INSERT INTO users (id, username, password, role)
             VALUES (?, ?, ?, ?)
-            """, (user_id, username, password))
-
-            return {"id": user_id, "username": username}
+            """, (user_id, username, password,role))
+            
+            return {"id": user_id, "username": username,"role":role}
 
     except sqlite3.IntegrityError:
         return None

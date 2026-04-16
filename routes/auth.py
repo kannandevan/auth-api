@@ -20,8 +20,12 @@ def regsiter():
 
     username = data.get("username")
     password = data.get("password")
+    role = data.get('role')
     
-    result = register_user_service(username,password)
+    if not role:
+        role = "user"
+        
+    result = register_user_service(username,password,role)
     
     if "error" in result:
         return jsonify(result),400

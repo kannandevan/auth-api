@@ -2,7 +2,7 @@
 from flask import Blueprint, request, jsonify
 from services.auth_service import register_user_service,user_login_service,get_profile
 from utils.jwt_handler import verify_token
-from utils.decorators import token_required
+from utils.decorators import token_required,admin_required
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -70,4 +70,15 @@ def profile(user):
     return jsonify({
         "message": "Access Granted",
         "data": result
+    }), 200
+    
+    
+    
+@auth_bp.route("/admin/users", methods=["GET"])
+@token_required
+@admin_required
+def get_all_users(user):
+    return jsonify({
+        "message": "Welcome Admin",
+        "data": "All users list (we’ll implement next)"
     }), 200

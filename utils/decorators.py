@@ -1,6 +1,7 @@
 from functools import wraps
 from flask import request, jsonify
 from utils.jwt_handler import verify_token
+from db import get_user_by_id
 
 
 def token_required(f):
@@ -30,6 +31,18 @@ def token_required(f):
 
 def admin_required(f):
     @wraps(f)
-    def wrapper(*args, **kwargs):
-        
-        return wrapper
+    def wrapper(user, *args, **kwargs):
+
+        user_id = user.get("user_id")
+
+        db_user = get_user_by_id(user_id)
+
+        if not db_user:
+            return jsonify({"error": "User not found"}), 404
+
+        if db_user.get("role") != "admin":
+            return jsonify({"error": "Forbidden: Admins only"}), 403
+
+        return f(user, *args, **kwargs)
+
+    return wrapper

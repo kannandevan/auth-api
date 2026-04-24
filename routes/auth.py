@@ -1,39 +1,44 @@
 
 from flask import Blueprint, request, jsonify
-from services.auth_service import register_user_service,user_login_service,get_profile
-from utils.jwt_handler import verify_token
+from services.auth_service import register_user_service,user_login_service,get_profile,get_all_users_service
 from utils.decorators import token_required,admin_required
+from utils.validators import validate_register_input
+from utils.response import success_response,error_response
 
 auth_bp = Blueprint("auth", __name__)
 
 @auth_bp.route("/test")
 def test():
-    return jsonify({"message": "Auth route working"})
+    return success_response("Auth route working","dummy_data",200)
 
 
 @auth_bp.route("/register",methods=["POST"])
-def regsiter():
+def register():
     data =request.get_json()
     
     if not data:
-        return jsonify({"error":"no data provided"}),400
+        return error_response("no data provided",400)
 
     username = data.get("username")
     password = data.get("password")
-    role = data.get('role')
+
     
-    if not role:
-        role = "user"
-        
-    result = register_user_service(username,password,role)
+    role = "user"
+    credentials = validate_register_input(username,password)
+    if "error" in credentials:
+         return error_response(credentials["error"],400)
+    
+    verified_username = credentials["username"]
+    verified_password = credentials["password"]
+    
+    
+      
+    result = register_user_service(verified_username,verified_password,role)
     
     if "error" in result:
-        return jsonify(result),400
+        return error_response(result["error"],400)
     
-    return jsonify({
-        "message":"User registerd",
-        "data":result
-    }),201
+    return success_response("User registered",result,201)
     
     
 @auth_bp.route("/login",methods=["POST"])
@@ -41,7 +46,7 @@ def login():
     data = request.get_json()
     
     if not data:
-        return jsonify({"error":"no data provided"}),400
+        return error_response("no data provided",400)
 
     username = data.get("username")
     password = data.get("password")
@@ -49,12 +54,10 @@ def login():
     user = user_login_service(username,password)
     
     if "error" in user:
-        return jsonify(user),400
+        return error_response(user["error"],400)
     
-    return jsonify({
-        "message":"login success",
-        "data":user
-    }),201
+    return success_response("login success",user,200)
+
     
     
 @auth_bp.route("/profile", methods=["GET"])
@@ -65,20 +68,16 @@ def profile(user):
     result = get_profile(user_id)
 
     if "error" in result:
-        return jsonify(result), 404
+        return error_response(result["error"],404)
 
-    return jsonify({
-        "message": "Access Granted",
-        "data": result
-    }), 200
-    
+    return success_response("Access Granted",result,200)
     
     
 @auth_bp.route("/admin/users", methods=["GET"])
 @token_required
 @admin_required
 def get_all_users(user):
-    return jsonify({
-        "message": "Welcome Admin",
-        "data": "All users list (we’ll implement next)"
-    }), 200
+
+    users = get_all_users_service()
+
+    return success_response("All users",users,200)

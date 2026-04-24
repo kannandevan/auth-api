@@ -1,17 +1,11 @@
 import bcrypt
-from db import create_user_db,get_user_by_username,get_user_by_id
+from db import create_user_db,get_user_by_username,get_user_by_id,get_all_users
 from utils.jwt_handler import generate_token
-
+from utils.validators import check_user_credentials
 def register_user_service(username,password,role="user"):
-    if not isinstance(username, str) or not username.strip():
-        return {"error": "Invalid username"}
-
-    if not isinstance(password, str) or len(password) < 6:
-        return {"error": "Password must be at least 6 characters"}
-
-    username = username.strip().lower()
-    role = role.strip().lower()
-
+    
+    
+    
     # hash password
     hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
 
@@ -52,4 +46,9 @@ def get_profile(user_id):
         "username": user["username"],
         "role":user["role"]
     }
-    
+
+
+def get_all_users_service():
+    users = get_all_users()
+
+    return users

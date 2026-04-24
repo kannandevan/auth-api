@@ -93,3 +93,26 @@ def get_user_by_id(user_id):
     except Exception as e:
         print("DB ERROR:", e)
         return None
+    
+
+
+def get_all_users():
+    try:
+        with sqlite3.connect(DB_NAME, timeout=5) as conn:
+            cursor = conn.cursor()
+
+            cursor.execute("SELECT id, username, role FROM users")
+            rows = cursor.fetchall()
+
+            return [
+                {
+                    "id": row[0],
+                    "username": row[1],
+                    "role": row[2]
+                }
+                for row in rows
+            ]
+
+    except Exception as e:
+        print("DB ERROR:", e)
+        return []
